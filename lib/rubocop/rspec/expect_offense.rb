@@ -98,6 +98,23 @@ module RuboCop
         expect(new_source).to eq(correction)
       end
 
+      def expect_no_corrections
+        unless @processed_source
+          raise '`expect_no_corrections` must follow `expect_offense`'
+        end
+
+        return if cop.corrections.empty?
+
+        # In order to print a nice diff, e.g. what source got corrected to,
+        # wee need to run the actual corrections
+
+        corrector =
+          RuboCop::Cop::Corrector.new(@processed_source.buffer, cop.corrections)
+        new_source = corrector.rewrite
+
+        expect(new_source).to eq(@processed_source.buffer.source)
+      end
+
       def expect_no_offenses(source, file = nil)
         inspect_source(source, file)
 
